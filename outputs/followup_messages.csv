@@ -1,0 +1,137 @@
+message_id,invoice_id,student_id,student_name,reason_code,recipient_role,recipient_name,recipient_contact,channel,priority,message_subject,message_body,action_required,responsible_person,status
+MSG-84905-1,84905,68105,Re***h Pa***l,ERR_BATCH_CAPACITY_EXHAUSTED,Parent,Me***a Pa***l,+91-9855XXXX05,WhatsApp,P1 (High),Important Update: Class Schedule for Re***h Pa***l,"Dear Me***a Pa***l,
+
+Thank you for renewing Re***h Pa***l's Unbox Chess Level 2 course! We have successfully received your payment of INR 11,000.00.
+
+Due to high demand, your current batch (CM-G4-Batch-D) has reached its maximum capacity of 6 students. To ensure Re***h Pa***l receives personalized attention, we have reserved a priority seat in a parallel batch with identical timings, or you may select an alternative time that fits your schedule.
+
+Please choose your preference here:
+👉 https://bambinos.live/schedule/select-slot?std=68105&inv=84905
+
+Our student support team is also available at +91-804568XXXX to assist you directly.",Select parallel batch slot or request callback.,Batch Planning Lead,DRAFT
+MSG-84905-2,84905,68105,Re***h Pa***l,ERR_BATCH_CAPACITY_EXHAUSTED,Operations,Batch Planning Team,#ops-capacity-alerts,Slack,P1 (High),:no_entry: Batch Full Alert | Batch CM-G4-Batch-D | Re***h Pa***l,"*Batch Capacity Overflow*
+• *Invoice ID:* `84905` | *Student:* Re***h Pa***l (`68105`)
+• *Target Batch:* CM-G4-Batch-D (`active: 6 / max: 6`)
+• *Impact:* Student paid in full but cannot be booked in full batch.
+• *Action Options:*
+  1. Approve educator +1 capacity override to 7 students.
+  2. Assign seat in parallel open batch (e.g. Batch 9210).
+• *Dashboard Link:* https://ops.bambinos.live/allocations/84905",Approve +1 capacity override or confirm parallel batch assignment.,Batch Planning Lead,DRAFT
+MSG-84906-1,84906,68106,Zo***a Kh***n,ERR_MISSING_FACULTY_FORM,Teacher,Ms. Rhea B***,Educator Portal,WhatsApp,P1 (High),Action Required: Renewal Form for Zo***a Kh***n (Invoice 84906),"Hi Ms. Rhea B***! 👋
+
+Good news: Full renewal payment of INR 18,000.00 has been received for your student *Zo***a Kh***n* (Young Communicators GCC Track, Invoice #84906).
+
+To ensure uninterrupted classes, please confirm their batch details using this 1-click link:
+👉 https://bambinos.live/faculty/renewals?inv=84906&std=68106
+
+Thank you for helping us keep Zo***a Kh***n's learning on track! ✨",Submit pre-filled renewal form in portal.,Academic Operations Coordinator,DRAFT
+MSG-84906-2,84906,68106,Zo***a Kh***n,ERR_MISSING_FACULTY_FORM,Operations,Academic Ops Queue,#ops-renewals-alerts,Slack,P1 (High),:warning: Missing Faculty Form | Invoice 84906 | Zo***a Kh***n,"*Missing Faculty Form Alert*
+• *Invoice ID:* `84906` (Amount: INR 18,000.00)
+• *Student:* Zo***a Kh***n (`68106`) | *Course:* Young Communicators GCC Track
+• *Educator:* Ms. Rhea B***
+• *Status:* Payment confirmed, but educator has not submitted renewal form.
+• *Next Step:* Automated WhatsApp prompt dispatched to Ms. Rhea B***. If unsubmitted in 2 hrs, auto-generate renewal form from LMS master.",Monitor teacher submission SLA or trigger auto-generation.,Academic Operations Coordinator,DRAFT
+MSG-84908-1,84908,68108,Si***a Ma***a,ERR_DUPLICATE_FORM_SUBMISSION,Operations,Ops Lead Queue,#ops-renewals-alerts,Slack,P2 (Standard),:information_source: Deduplication Applied | Invoice 84908,"*Duplicate Renewal Form Handled*
+• *Invoice:* `84908` | *Student:* Si***a Ma***a (`68108`)
+• *Forms Received:* 3308 (08:30:00) and 3309 (08:35:12) by Acharya Nancy S***.
+• *Action Taken:* Engine has preserved Form 3308 as active and auto-archived Form 3309 to prevent duplicate seat booking.",Auto-resolved. Verify deduplication log in dashboard.,System Automation / Ops Lead,DRAFT
+MSG-84908-2,84908,68108,Si***a Ma***a,ERR_DUPLICATE_FORM_SUBMISSION,Teacher,Acharya Nancy S***,Educator Portal,WhatsApp,P2 (Standard),Confirmation: Renewal Form Received for Si***a Ma***a,"Hi Acharya Nancy S***,
+
+We received two submissions for *Si***a Ma***a* (Invoice #84908). We have processed your earlier submission (Form #3308) and safely archived the duplicate.
+
+The renewal is now progressing normally. Thank you!",FYI only. No educator action required.,System Automation / Ops Lead,DRAFT
+MSG-84910-1,84910,68110,My***a Re***y,ERR_MISSING_FACULTY_FORM,Teacher,Coach Arvind K***,Educator Portal,WhatsApp,P1 (High),Action Required: Renewal Form for My***a Re***y (Invoice 84910),"Hi Coach Arvind K***! 👋
+
+Good news: Full renewal payment of INR 11,000.00 has been received for your student *My***a Re***y* (Unbox Chess Level 1, Invoice #84910).
+
+To ensure uninterrupted classes, please confirm their batch details using this 1-click link:
+👉 https://bambinos.live/faculty/renewals?inv=84910&std=68110
+
+Thank you for helping us keep My***a Re***y's learning on track! ✨",Submit pre-filled renewal form in portal.,Academic Operations Coordinator,DRAFT
+MSG-84910-2,84910,68110,My***a Re***y,ERR_MISSING_FACULTY_FORM,Operations,Academic Ops Queue,#ops-renewals-alerts,Slack,P1 (High),:warning: Missing Faculty Form | Invoice 84910 | My***a Re***y,"*Missing Faculty Form Alert*
+• *Invoice ID:* `84910` (Amount: INR 11,000.00)
+• *Student:* My***a Re***y (`68110`) | *Course:* Unbox Chess Level 1
+• *Educator:* Coach Arvind K***
+• *Status:* Payment confirmed, but educator has not submitted renewal form.
+• *Next Step:* Automated WhatsApp prompt dispatched to Coach Arvind K***. If unsubmitted in 2 hrs, auto-generate renewal form from LMS master.",Monitor teacher submission SLA or trigger auto-generation.,Academic Operations Coordinator,DRAFT
+MSG-84911-1,84911,68111,Is***n Gu***a,ERR_PAYMENT_STATUS_FAILED,Parent,An***i Gu***a,+91-9811XXXX11,WhatsApp,P0 (Urgent),Payment Update: Renewal for Is***n Gu***a (Invoice 84911),"Dear An***i Gu***a,
+
+We noticed that your recent payment attempt for Is***n Gu***a's renewal (Young Communicators Level 1, Invoice #84911) could not be processed by your bank/UPI gateway.
+
+If the amount was debited from your account, it will automatically be refunded by your bank within 3–5 business days. To ensure Is***n Gu***a's class schedule is confirmed without interruption, please retry using our secure payment link below:
+
+👉 https://bambinos.live/pay/retry?inv=84911&std=68111
+
+Need assistance? Reply to this message and our billing support team will assist you immediately.",Retry payment using secure gateway link.,Billing & Collections Specialist,DRAFT
+MSG-84911-2,84911,68111,Is***n Gu***a,ERR_PAYMENT_STATUS_FAILED,Teacher,Ms. Simran D***,Educator Portal,WhatsApp,P0 (Urgent),Urgent Notice: Unverified Payment for Is***n Gu***a,"Hi Ms. Simran D***,
+
+Regarding Form #3311 submitted for *Is***n Gu***a* based on a payment screenshot:
+Our gateway reports that this transaction has *FAILED* at the bank. No funds were collected for Invoice #84911.
+
+⚠️ *Important:* Please do not add Is***n Gu***a to upcoming class schedules until we notify you of successful payment settlement.
+
+We have sent a secure payment retry link to the parent. Thank you for your cooperation!",Do not confirm class schedule until payment settlement confirmed.,Billing & Collections Specialist,DRAFT
+MSG-84911-3,84911,68111,Is***n Gu***a,ERR_PAYMENT_STATUS_FAILED,Operations,Billing & Collections Queue,#finance-ops-alerts,Slack,P0 (Urgent),:rotating_light: Hard Block: Failed Payment Form Submitted | 84911,"*Financial Leakage Prevented*
+• *Invoice ID:* `84911` | *Student:* Is***n Gu***a (`68111`)
+• *Status:* Payment status is `Failed` at Razorpay (paid_at is NULL).
+• *Educator:* Ms. Simran D*** submitted form based on unconfirmed UPI screenshot.
+• *Action Taken:* Engine has hard-blocked renewal approval. Automated payment recovery link sent to parent. Teacher instructed to pause scheduling.",Track recovery link conversion; prevent manual approval.,Billing & Collections Specialist,DRAFT
+MSG-84913-1,84913,68113,De***a Me***a,ERR_INVOICE_NOT_FOUND_REPAIRABLE,Operations,Ops Auto-Repair Queue,#ops-renewals-alerts,Slack,P1 (High),:wrench: 1-Click Re-link Candidate: Form 3313 ➔ Invoice 84913,"*Foreign Key Typo Detected (Repair Candidate)*
+• *Paid Invoice:* `84913` (Student: De***a Me***a, Class: Unbox Science Level 1, Amount: INR 11,500.00)
+• *Faculty Form:* `Form 3313` entered with ghost invoice `84931` by Ms. Mary M***.
+• *Confidence:* 100% exact match on Student ID (`68113`), Class, Educator, and Fee.
+• *Resolution:* Click below to execute automated re-link and release approval:
+👉 https://ops.bambinos.live/relink?form=3313&invoice=84913",Execute 1-click re-link on Ops dashboard.,Operations Associate,DRAFT
+MSG-84913-2,84913,68113,De***a Me***a,ERR_INVOICE_NOT_FOUND_REPAIRABLE,Teacher,Ms. Mary M***,Educator Portal,WhatsApp,P2 (Standard),Notice: Invoice Number Update for De***a Me***a,"Hi Ms. Mary M***,
+
+Quick update on your renewal submission for *De***a Me***a*: The invoice number entered (`84931`) contained a minor typo. Our system matched it to the verified paid Invoice #84913.
+
+We have updated the record and De***a Me***a's renewal is proceeding for approval. No action needed on your end! 👍",FYI only. No educator action required.,Operations Associate,DRAFT
+MSG-84904-1,84904,68104,An***a Iy***r,WARN_SECONDARY_PARENT_PAYER,Parent,Ri***u Iy***r,+91-9844XXXX77,WhatsApp,P2 (Standard),Payment Received: Renewal Confirmation for An***a Iy***r,"Dear Ri***u Iy***r,
+
+Thank you! We have received your renewal payment of INR 12,000.00 for *An***a Iy***r* (Young Communicators Level 2, Invoice #84904).
+
+We noticed you paid from this number (+91-9844XXXX77), while An***a Iy***r's profile was initially registered under another family number. To ensure you both receive class links and progress updates, please tap below to add this number as an authorized secondary contact:
+👉 https://bambinos.live/profile/link-contact?std=68104&phone=+91-9844XXXX77
+
+An***a Iy***r's class schedule is being confirmed!",1-click confirm secondary contact linking.,Operations Associate,DRAFT
+MSG-84904-2,84904,68104,An***a Iy***r,WARN_SECONDARY_PARENT_PAYER,Operations,Ops Review Queue,#ops-assisted-review,Slack,P2 (Standard),:busts_in_silhouette: Secondary Payer Verification | An***a Iy***r,"*Cross-Parent Payer Divergence*
+• *Invoice:* `84904` | *Student:* An***a Iy***r (`68104`)
+• *Payer:* Ri***u Iy***r (`+91-9844XXXX77`) | *Registered Profile:* Father
+• *Teacher Remark:* 'Mother paid from her number'
+• *Action:* Click to approve renewal and link mother's contact to master profile:
+👉 https://ops.bambinos.live/approve-contact?inv=84904",1-Click verify secondary contact and release approval.,Operations Associate,DRAFT
+MSG-84907-1,84907,68107,Vi***n Jo***i,INFO_DISCOUNT_AUDIT_REQUIRED,Operations,Sales Ops Queue,#sales-ops-audits,Slack,P2 (Standard),:label: Discount Audit Required | Invoice 84907 | Vi***n Jo***i,"*Promotional Discount Audit*
+• *Invoice:* `84907` | *Student:* Vi***n Jo***i (`68107`)
+• *Gross Fee:* INR 9,500.00 | *Discount:* INR 1,900.00 (20.0%)
+• *Net Collected:* INR 7,600.00 (matches Faculty Form exactly)
+• *Action:* 1-Click to confirm promotional code and auto-approve renewal:
+👉 https://ops.bambinos.live/audit-discount?inv=84907",Verify promotional authorization and approve.,Sales Operations Team Lead,DRAFT
+MSG-84909-1,84909,68109,Ad***t Ku***i,WARN_PARTIAL_PAYMENT_PROVISIONAL,Parent,Sn***a Ku***i,+91-9899XXXX09,WhatsApp,P2 (Standard),Installment Confirmation: Ad***t Ku***i's Renewal,"Dear Sn***a Ku***i,
+
+We have received your payment of INR 5,250.00 for *Installment 1 of 2* for Ad***t Ku***i's Unbox Maths Level 2 course.
+
+🎉 *Ad***t Ku***i's provisional batch booking of 12 sessions is confirmed!* Class schedules will appear in your parent app shortly.
+
+Your remaining installment of INR 5,250.00 will be due prior to session 12. We will send a convenient reminder link closer to the date.",Confirm provisional 12 sessions schedule in app.,Operations Lead,DRAFT
+MSG-84909-2,84909,68109,Ad***t Ku***i,WARN_PARTIAL_PAYMENT_PROVISIONAL,Operations,Operations Lead,#ops-assisted-review,Slack,P2 (Standard),:credit_card: Installment 1 Approval | Invoice 84909 | Ad***t Ku***i,"*Partial Payment Provisional Booking*
+• *Invoice:* `84909` | *Student:* Ad***t Ku***i (`68109`)
+• *Collected:* INR 5,250.00 (50% of 24-session fee)
+• *Recommendation:* Approve provisional booking for 12 sessions and set automated Installment 2 reminder.
+👉 https://ops.bambinos.live/approve-provisional?inv=84909&sessions=12",Approve provisional 12 sessions in dashboard.,Operations Lead,DRAFT
+MSG-84912-1,84912,68112,Ta***a Me***n,WARN_BATCH_CHANGE_SELECTION_PENDING,Parent,De***k Me***n,+91-9822XXXX12,WhatsApp,P1 (High),Select New Weekend Batch for Ta***a Me***n,"Dear De***k Me***n,
+
+Your renewal for Ta***a Me***n's Little Yogi Gita Level 1 course is approved! We noted your request to move to a *Saturday & Sunday 11:00 AM* batch.
+
+Here are the available weekend batches with open seats:
+1️⃣ Batch LY-SAT-SUN-A (Sat/Sun 11:00 AM) - Acharya Nancy
+2️⃣ Batch LY-SAT-SUN-B (Sat/Sun 11:30 AM) - Acharya Nancy
+
+Please tap below to confirm your preferred batch:
+👉 https://bambinos.live/batch/confirm?std=68112&inv=84912&opt=weekend
+
+Once selected, your calendar invites and Zoom links will be generated automatically!",Confirm preferred weekend batch slot via 1-click link.,Customer Success Specialist,DRAFT
+MSG-84912-2,84912,68112,Ta***a Me***n,WARN_BATCH_CHANGE_SELECTION_PENDING,Operations,Customer Success Lead,#ops-batch-changes,Slack,P1 (High),:arrows_counterclockwise: Batch Change Pending Parent Selection | Ta***a Me***n,"*Batch Change Request Dispatched*
+• *Invoice:* `84912` | *Student:* Ta***a Me***n (`68112`)
+• *Preference:* Shifted from Wed/Fri to Sat/Sun 11:00 AM.
+• *Action Taken:* WhatsApp options sent to parent. Awaiting 1-click confirmation within 48-hour SLA window.",Track parent response; follow up if unconfirmed in 24 hrs.,Customer Success Specialist,DRAFT

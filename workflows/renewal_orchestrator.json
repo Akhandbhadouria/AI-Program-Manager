@@ -1,0 +1,399 @@
+{
+  "name": "Bambinos Student Renewal Reconciliation & Orchestration Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payment-completed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "node-webhook-payment",
+      "name": "Webhook: Payment Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [160, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "node-cron-sweep",
+      "name": "Cron: 15-Min Sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [160, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Idempotency Guard & Deduplicator\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const event = item.json;\n  const invoiceId = String(event.id || event.invoice_id || '');\n  const status = String(event.payment_status || event.status || 'PAID');\n  const idempotencyKey = `idemp_${invoiceId}_${status}`;\n\n  // Deduplication check: in production, verify against Redis/KV store\n  results.push({\n    json: {\n      invoice_id: invoiceId,\n      payment_status: status,\n      idempotency_key: idempotencyKey,\n      trigger_source: event.id ? 'webhook' : 'cron_sweep',\n      received_at: new Date().toISOString()\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "node-idempotency-guard",
+      "name": "Idempotency Guard & Deduplicator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [380, 400]
+    },
+    {
+      "parameters": {
+        "command": "/opt/homebrew/bin/python3.10 /Users/lambardaar/Downloads/bombios/main.py"
+      },
+      "id": "node-reconciliation-engine",
+      "name": "Trigger Reconciliation Engine",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [580, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ingest classification outputs from reconciliation engine CSV outputs\nconst fs = require('fs');\nconst path = '/Users/lambardaar/Downloads/bombios';\n\nfunction parseCSV(filePath) {\n  if (!fs.existsSync(filePath)) return [];\n  const content = fs.readFileSync(filePath, 'utf8').trim();\n  if (!content) return [];\n  const lines = content.split('\\n');\n  const headers = lines[0].split(',').map(h => h.trim().replace(/^\"|\"$/g, ''));\n  return lines.slice(1).map(line => {\n    const values = line.split(',').map(v => v.trim().replace(/^\"|\"$/g, ''));\n    const obj = {};\n    headers.forEach((h, i) => obj[h] = values[i] || '');\n    return obj;\n  });\n}\n\nconst autoApproved = parseCSV(`${path}/auto_approved.csv`).map(r => ({ ...r, routing_branch: 'AUTO_APPROVED' }));\nconst flagged = parseCSV(`${path}/flagged_exceptions.csv`).map(r => {\n  let branch = 'FLAGGED_EXCEPTION';\n  const code = r.primary_reason_code || '';\n  if (code.includes('PAYMENT_NOT_COMPLETED')) branch = 'PAYMENT_FAILED';\n  else if (code.includes('BATCH_CAPACITY_FULL') || code.includes('INACTIVE_BATCH')) branch = 'BATCH_UNAVAILABLE';\n  else if (code.includes('MISSING_FACULTY_FORM') || code.includes('UNMATCHED_INVOICE')) branch = 'MISSING_TEACHER_FORM';\n  else if (code.includes('DUPLICATE')) branch = 'DUPLICATE_BOOKING';\n  return { ...r, routing_branch: branch };\n});\nconst pending = parseCSV(`${path}/pending_human_review.csv`).map(r => {\n  let branch = 'PENDING_REVIEW';\n  const code = r.primary_reason_code || '';\n  if (code.includes('PARTIAL_PAYMENT')) branch = 'PARTIAL_PAYMENT';\n  else if (code.includes('MISMATCH') || code.includes('AMBIGUOUS')) branch = 'STUDENT_MISMATCH';\n  return { ...r, routing_branch: branch };\n});\n\nconst allRecords = [...autoApproved, ...flagged, ...pending];\nreturn allRecords.map(rec => ({ json: rec }));"
+      },
+      "id": "node-parse-results",
+      "name": "Parse Engine Outputs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 400]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.routing_branch }}",
+        "rules": {
+          "rules": [
+            { "value2": "AUTO_APPROVED", "output": 0 },
+            { "value2": "PARTIAL_PAYMENT", "output": 1 },
+            { "value2": "STUDENT_MISMATCH", "output": 2 },
+            { "value2": "BATCH_UNAVAILABLE", "output": 3 },
+            { "value2": "MISSING_TEACHER_FORM", "output": 4 },
+            { "value2": "DUPLICATE_BOOKING", "output": 5 },
+            { "value2": "PAYMENT_FAILED", "output": 6 }
+          ]
+        }
+      },
+      "id": "node-switch-routing",
+      "name": "Switch: Routing Decision Tree",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/lms/allocate-seat",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" },
+            { "name": "student_id", "value": "={{ $json.student_id }}" },
+            { "name": "batch_id", "value": "={{ $json.batch_id }}" },
+            { "name": "action", "value": "ALLOCATE_SEAT" }
+          ]
+        }
+      },
+      "id": "node-lms-allocate",
+      "name": "LMS API: Allocate Batch Seat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1300, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/lms/schedule-slots",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" },
+            { "name": "batch_id", "value": "={{ $json.batch_id }}" },
+            { "name": "sessions", "value": "24" }
+          ]
+        }
+      },
+      "id": "node-lms-schedule",
+      "name": "LMS API: Schedule 24 Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1520, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/whatsapp/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient", "value": "Parent" },
+            { "name": "phone", "value": "={{ $json.parent_phone }}" },
+            { "name": "template", "value": "renewal_confirmation_success" },
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" }
+          ]
+        }
+      },
+      "id": "node-wa-parent-success",
+      "name": "WhatsApp: Parent Confirmation (Mock)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1740, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/lms/provision-partial",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" },
+            { "name": "student_id", "value": "={{ $json.student_id }}" },
+            { "name": "sessions", "value": "12" }
+          ]
+        }
+      },
+      "id": "node-partial-provision",
+      "name": "LMS API: Provision 12 Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1300, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#ops-assisted-review",
+        "text": "=:credit_card: *Partial Payment (Installment 1)* | Invoice `{{ $json.invoice_id }}` (Student: `{{ $json.student_id }}`)\nProvisioned 12 sessions. Next installment due in 15 days. Action required: Send balance payment link."
+      },
+      "id": "node-slack-partial",
+      "name": "Slack: Ops Partial Review",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1520, 220]
+    },
+    {
+      "parameters": {
+        "channel": "#academic-ops-alerts",
+        "text": "=:warning: *Student / Course Mismatch* | Invoice `{{ $json.invoice_id }}` (Student: `{{ $json.student_id }}`)\nReason: `{{ $json.primary_reason_code }}`\nAction: Verify registered profile vs payer before seat assignment."
+      },
+      "id": "node-slack-mismatch",
+      "name": "Slack: Academic Ops Mismatch",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1300, 340]
+    },
+    {
+      "parameters": {
+        "channel": "#ops-batch-capacity",
+        "text": "=:no_entry: *Batch Capacity Full (6/6)* | Invoice `{{ $json.invoice_id }}` (Batch: `{{ $json.batch_id }}`)\nSeat request blocked. Action: Open parallel section or reallocate."
+      },
+      "id": "node-slack-batch-full",
+      "name": "Slack: Batch Planning Full Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1300, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/whatsapp/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient", "value": "Parent" },
+            { "name": "phone", "value": "={{ $json.parent_phone }}" },
+            { "name": "template", "value": "parallel_batch_options" },
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" }
+          ]
+        }
+      },
+      "id": "node-wa-parent-parallel",
+      "name": "WhatsApp: Parallel Batch Offer (Mock)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1520, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/whatsapp/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient", "value": "Teacher" },
+            { "name": "phone", "value": "={{ $json.teacher_phone || '+91-9876543210' }}" },
+            { "name": "template", "value": "missing_faculty_form_reminder" },
+            { "name": "student_name", "value": "={{ $json.student_name }}" }
+          ]
+        }
+      },
+      "id": "node-wa-teacher-reminder",
+      "name": "WhatsApp: Teacher 1-Click Form Chaser (Mock)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1300, 580]
+    },
+    {
+      "parameters": {
+        "channel": "#ops-duplicate-alerts",
+        "text": "=:information_source: *Duplicate Booking Blocked* | Invoice `{{ $json.invoice_id }}` (Student: `{{ $json.student_id }}`)\nPre-existing active schedule detected. No duplicate calendar slot created."
+      },
+      "id": "node-slack-duplicate",
+      "name": "Slack: Duplicate Suppressed FYI",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1300, 700]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/whatsapp/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient", "value": "Parent" },
+            { "name": "phone", "value": "={{ $json.parent_phone }}" },
+            { "name": "template", "value": "payment_failed_retry_link" },
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" }
+          ]
+        }
+      },
+      "id": "node-wa-parent-failed",
+      "name": "WhatsApp: Payment Retry Link (Mock)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1300, 820]
+    },
+    {
+      "parameters": {
+        "channel": "#finance-ops-alerts",
+        "text": "=:rotating_light: *P0 Financial Alert: Failed Payment Form Submitted* | Invoice `{{ $json.invoice_id }}`\nHard-block active. Payment retry dispatched to parent."
+      },
+      "id": "node-slack-failed",
+      "name": "Slack: Billing Hard Block Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1520, 820]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.bambinos.live/mock/db/audit-log",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "invoice_id", "value": "={{ $json.invoice_id }}" },
+            { "name": "routing_branch", "value": "={{ $json.routing_branch }}" },
+            { "name": "reason_code", "value": "={{ $json.primary_reason_code || 'SUCCESS' }}" },
+            { "name": "action_taken", "value": "={{ $json.recommended_action || 'ALLOCATE_AND_SCHEDULE' }}" },
+            { "name": "processed_at", "value": "={{ new Date().toISOString() }}" }
+          ]
+        }
+      },
+      "id": "node-db-audit",
+      "name": "Database: Operational Tracking & Audit Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1980, 460]
+    }
+  ],
+  "connections": {
+    "Webhook: Payment Event": {
+      "main": [
+        [{ "node": "Idempotency Guard & Deduplicator", "type": "main", "index": 0 }]
+      ]
+    },
+    "Cron: 15-Min Sweep": {
+      "main": [
+        [{ "node": "Idempotency Guard & Deduplicator", "type": "main", "index": 0 }]
+      ]
+    },
+    "Idempotency Guard & Deduplicator": {
+      "main": [
+        [{ "node": "Trigger Reconciliation Engine", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger Reconciliation Engine": {
+      "main": [
+        [{ "node": "Parse Engine Outputs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Engine Outputs": {
+      "main": [
+        [{ "node": "Switch: Routing Decision Tree", "type": "main", "index": 0 }]
+      ]
+    },
+    "Switch: Routing Decision Tree": {
+      "main": [
+        [{ "node": "LMS API: Allocate Batch Seat", "type": "main", "index": 0 }],
+        [{ "node": "LMS API: Provision 12 Sessions", "type": "main", "index": 0 }],
+        [{ "node": "Slack: Academic Ops Mismatch", "type": "main", "index": 0 }],
+        [{ "node": "Slack: Batch Planning Full Alert", "type": "main", "index": 0 }],
+        [{ "node": "WhatsApp: Teacher 1-Click Form Chaser (Mock)", "type": "main", "index": 0 }],
+        [{ "node": "Slack: Duplicate Suppressed FYI", "type": "main", "index": 0 }],
+        [{ "node": "WhatsApp: Payment Retry Link (Mock)", "type": "main", "index": 0 }]
+      ]
+    },
+    "LMS API: Allocate Batch Seat": {
+      "main": [
+        [{ "node": "LMS API: Schedule 24 Sessions", "type": "main", "index": 0 }]
+      ]
+    },
+    "LMS API: Schedule 24 Sessions": {
+      "main": [
+        [{ "node": "WhatsApp: Parent Confirmation (Mock)", "type": "main", "index": 0 }]
+      ]
+    },
+    "WhatsApp: Parent Confirmation (Mock)": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "LMS API: Provision 12 Sessions": {
+      "main": [
+        [{ "node": "Slack: Ops Partial Review", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Ops Partial Review": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Academic Ops Mismatch": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Batch Planning Full Alert": {
+      "main": [
+        [{ "node": "WhatsApp: Parallel Batch Offer (Mock)", "type": "main", "index": 0 }]
+      ]
+    },
+    "WhatsApp: Parallel Batch Offer (Mock)": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "WhatsApp: Teacher 1-Click Form Chaser (Mock)": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Duplicate Suppressed FYI": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "WhatsApp: Payment Retry Link (Mock)": {
+      "main": [
+        [{ "node": "Slack: Billing Hard Block Alert", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack: Billing Hard Block Alert": {
+      "main": [
+        [{ "node": "Database: Operational Tracking & Audit Log", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

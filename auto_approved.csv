@@ -1,0 +1,4 @@
+invoice_id,student_id,student_name,class_id,class_name,classbatch_id,classbatch_name,educator_id,educator_name,sessions_count,batch_days,batch_start_time,net_amount_paid,approval_status,approval_timestamp,approval_reason,action_taken
+84901,68101,Aa***v Sh***a,104,Young Communicators Level 2,9201,YC-G4-Batch-A,1102,Ms. Rhea B***,24,"Tue,Thu",17:00:00,12000.00,AUTO_APPROVED,2026-11-05 19:57:19,SUCCESS_CLEAN_RENEWAL,Pre-existing scheduled slots active.
+84902,68102,Di***a Na***r,205,Unbox Maths Level 3,9202,BM-G5-Batch-C,1108,Mr. Vikram S***,24,"Mon,Wed",18:00:00,10500.00,AUTO_APPROVED,2026-11-05 19:57:19,SUCCESS_CLEAN_RENEWAL,Auto-approved. Batch seat allocated and class slots generated.
+84903,68103,Ka***r Ve***a,301,Little Yogi Gita Level 1,9203,LY-G3-Batch-B,1115,Acharya Nancy S***,24,"Wed,Fri",16:30:00,9000.00,AUTO_APPROVED,2026-11-05 19:57:19,SUCCESS_CLEAN_RENEWAL,Auto-approved. Batch seat allocated and class slots generated.
